@@ -1,0 +1,12 @@
+#1 nota >= 6 aprovado caso contrario reprovado, definir 9 como variavel
+set @varNota = 9;
+select if (@varNota >= 6, 'Aprovado', 'Reprovado') as Situação;
+
+#2 criar um codigo para verificar a nota do aluno e determinar a situação
+set @varNota = 6;
+select if (@varNota >= 6, 'Aprovado',
+if (@varNota >=4, 'Recuperação','Reprovado')) as nota;
+
+#3 criar um codigo para classificar o produto de acordo com o preço
+set @varPreco = 11000;
+select if (@varPreco >= 40000, 'Luxo', if (@varPreco >= 10000, 'Economico', if (@varPreco < 10000,'Basico','Basico'))) as Classe;

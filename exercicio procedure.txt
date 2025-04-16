@@ -1,0 +1,100 @@
+create database projeto;
+CREATE TABLE NEW_CURSOS(
+IDCURSO INT PRIMARY KEY AUTO_INCREMENT,
+NOME VARCHAR(100) NOT NULL,
+HORAS INT NOT NULL,
+PRECO DECIMAL(10,2) NOT NULL
+);
+
+INSERT INTO NEW_CURSOS VALUES
+(NULL, 'JAVA', 30, 500.00),
+(NULL, 'BANCO DE DADOS', 30, 700.00); 
+
+SELECT * FROM NEW_CURSOS;
+
+#Criar uma procedure para cadastrar os cursos abaixo, na tabela NEW_CURSOS:
+delimiter $
+create procedure add_curso(idcurso int, nome varchar(100), horas int, preco decimal(10,2))
+begin
+insert into NEW_CURSOS values (default, nome, horas, preco);
+end $
+delimiter ;
+select * from new_cursos;
+call add_curso (null,'MySQL',30,100.00);
+call add_curso (null,'Microsoft SQL Server',35,150.00);
+call add_curso (null,'PostgreSQL',40,200.00);
+call add_curso (null,'Oracle Database',50,250.00);
+
+
+#CRIANDO UMA PROCEDURE PARA ATUALIZAR OS PREÇOS DA TABELA NEW_CURSOS:
+delimiter $
+create procedure upd_preco(id int, acrescimo decimal(10,2))
+begin
+update new_cursos
+set preco = preco * (1 + acrescimo / 100)
+where idcurso = id;
+end $
+delimiter ;
+select * from new_cursos;
+call upd_preco(1, 15);
+call upd_preco(2, 18);
+call upd_preco(3, 20);
+call upd_preco(4, 22);
+call upd_preco(5, 25);
+call upd_preco(6, 28);
+
+#ATUALIZANDO OS PREÇOS DOS CURSOS DA TABELA NEW_CURSOS
+#ID 1: 600
+#ID 2: 800
+#ID 3: 200
+#ID 4: 250
+#ID 5: 300
+#ID 6: 350
+
+delimiter $
+create procedure new_preco(new_preco int, id int)
+begin
+update new_cursos
+set preco = new_preco
+where idcurso = id;
+end $
+delimiter ;
+select * from new_cursos;
+call new_preco ('1','600');
+call new_preco ('2','800');
+call new_preco ('3','200');
+call new_preco ('4','250');
+call new_preco ('5','300');
+call new_preco ('6','350');
+
+#criar procedure para fazer um desconto em tods os preços dos cursos da tabela new cursos(35% de desconto)
+delimiter $
+create procedure desconto_total(desconto decimal(10,2))
+begin
+update new_cursos set preco = preco * (1 - desconto / 100);
+end $
+delimiter ;
+select * from new_cursos;
+call desconto_total(35);
+
+#criar procedure para excluir curso por id
+delimiter $
+create procedure excluir_curso(id int)
+begin
+delete from new_cursos where id = idcurso;
+end $
+delimiter ;
+select * from new_cursos;
+call excluir_curso('1');
+
+#criar uma procedure para excluir o curso por nome
+delimiter $
+create procedure excluir_curso_nome(nome_e varchar(100))
+begin
+delete from new_cursos
+where nome = nome_e;
+end $
+delimiter ;
+
+select * from new_cursos;
+call excluir_curso_nome('Oracle Database');

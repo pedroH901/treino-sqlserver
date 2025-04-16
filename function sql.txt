@@ -1,0 +1,74 @@
+#Crie uma função para obter a data de hoje + 5 anos
+delimiter $
+create function data_mais_5_anos()
+returns date
+deterministic
+begin
+return date_add(curdate(), interval 5 year);
+end $
+delimiter ;
+
+select data_mais_5_anos();
+
+#Crie uma função para obter a data de hoje menos 2 anos, 11 meses e 29 dias
+delimiter $
+create function data_menos_2_anos_11_meses_29_dias()
+returns date
+deterministic
+begin
+return date_sub(curdate(), interval 2 year) - interval 11 month - interval 29 day;
+end $
+delimiter ;
+
+select data_menos_2_anos_11_meses_29_dias(); 
+
+
+#------commit------
+/*
+start transaction indica uma transacao de banco de dados
+commit salvar alterações no banco de dados
+rollback desfazer as alterações e cancela a transção
+set autocommit = 0 para encerrar o comando
+*/
+
+#1 crie um banco de dados com nome tcl
+create database TCL;
+
+#2 crie uma tabela com o nome dados, na tabela dados deve conter os campos:
+/* 
+id int, not null, auto increment e primary key
+nome varchar(100)
+endereco varchar(100)
+cpf varchar(12)
+sexo enum('m' e 'f')
+*/
+create table dados(
+id int not null auto_increment primary key,
+nome varchar(100),
+endereco varchar(100),
+cpf varchar(12),
+sexo enum('m', 'f')
+);
+
+#3 inserir 3 nomes
+insert into dados values (default, 'Marcos','Rua: Florença, 10','12345678978','M'),
+(default, 'Marcelo','Rua: Florencia, 11','24816326412','M'),
+(default, 'Marcio','Rua: Florenquia, 12','481632641282','M');
+
+select * from dados;
+
+#4 mudar o primeiro valor da tabela para o genero oposto
+update dados set nome ='Marcia' where id = '1';
+
+#rollback basicamente cancela a ação feita dentro do transaction
+start transaction;
+delete from dados where id = '3';
+rollback;
+
+select * from dados;
+
+#commit dentro do transaction solidifica a modificacao que foi feita
+start transaction;
+delete from dados where id = '2';
+commit;
+rollback;

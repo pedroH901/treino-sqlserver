@@ -1,0 +1,21 @@
+--Qual é o nome do produto que teve a maior quantidade de vendas
+SELECT TOP(100) * FROM FactSales 
+DECLARE @varProdutoMaisVendido INT
+DECLARE @varTotalMaisVendido FLOAT
+
+SELECT TOP(1)
+@varProdutoMaisVendido = ProductKey, @varTotalMaisVendido = SalesAmount
+FROM FactSales ORDER BY SalesAmount DESC
+SELECT @varProdutoMaisVendido AS 'Produto', @varTotalMaisVendido AS 'Total'
+SELECT ProductName FROM DimProduct WHERE ProductKey = @varProdutoMaisVendido 
+SELECT * FROM DimProduct
+
+--Retorne uma lista com os nomes dos funcionarios do departamento de marketing
+DECLARE @ListaNomes VARCHAR(MAX)
+SET @ListaNomes = ' '
+SELECT 
+@ListaNomes = @ListaNomes + FirstName + ', ' + CHAR(10) FROM DimEmployee WHERE DepartmentName = 'Marketing'
+PRINT LEFT(@ListaNomes, DATALENGTH(@ListaNomes) - 3)
+
+USE ContosoRetailDW
+GO

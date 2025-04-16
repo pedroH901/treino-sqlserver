@@ -1,0 +1,21 @@
+#exercicio view
+
+#- Crie uma View para mostrar o valor total das compras efetuadas pelos clientes
+create view v_totalCompra as select sum(valor_compra) from clientes;
+select * from v_totalCompra;
+
+# Crie uma View para mostrar o menor valor de compras efetuadas pelos clientes.
+create view v_menorCompra as select min(valor_compra) from clientes;
+select * from v_menorCompra;
+
+# Crie uma View para mostrar a média do valor de compras efetuadas pelos clientes.
+create view v_mediaCompra as select avg(valor_compra) from clientes;
+select * from v_mediaCompra;
+
+# Crie uma View para mostrar o maior valor de compras efetuadas pelos clientes. 
+create view v_maiorCompra as select max(valor_compra) from clientes;
+select * from v_maiorCompra;
+
+# Crie uma View para mostrar o maior valor de compras efetuadas pelos clientes e o nome do cliente. 
+create view v_compraEnome as select nome, valor_compra from clientes where valor_compra = (select max(valor_compra) from clientes);
+select * from v_compraEnome;

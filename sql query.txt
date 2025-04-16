@@ -1,0 +1,61 @@
+#1 Trabalhando com as tabelas: produtos e categorias, crie uma variável com subquery para encontrarmos o nome dos produtos por categoria. Faça uma demonstração com o produto ‘microfone’
+
+set @varcategoria = 'Microfone';
+select * from produtos where id_categoria = (select id_categoria from categorias where categoria = @varMicrofone);
+
+#2 Utilizando a tabela pedidos, encontre a quantidade de vendas por produto, desta quantidade, informe a quantidade máxima, mínima e média?
+select * from pedidos;
+select id_produto, count(*) as 'qtd_vendas' from pedidos group by id_produto order by qtd_vendas;
+select max(qtd_vendas) as 'maximo de vendas', min(qtd_vendas) as 'minimo vendas', avg(qtd_vendas) as 'media vendas' from ( select id_produto, count(*) as 'qtd_vendas' from pedidos group by id_produto order by qtd_vendas) as v;
+
+
+#3 Utilizando as tabelas; clientes e pedidos do banco de dados Diversas_tabelas, descubra todas as informações sobre o cliente que gerou mais receitas para a empresa.
+select * from clientes;
+select * from pedidos;
+select * from clientes, pedidos;
+select id_cliente, sum(receita_venda) from pedidos group by id_cliente order by sum(receita_venda) desc;
+select id_cliente, sum(receita_venda) from pedidos group by id_cliente order by sum(receita_venda) desc limit 1;
+
+#4 Utilizando a tabela locais, quais pedidos foram feitos na região sudeste?
+select * from locais;
+select * from pedidos;
+select * from clientes;
+select * from lojas;
+select cidade from locais where região = 'sudeste';
+
+select * from lojas where loja in (select cidade from locais where região = 'sudeste');
+
+select id_loja from lojas where loja in (select cidade from locais where região = 'sudeste');
+
+select * from pedidos where id_loja in (select id_loja from lojas where loja in (select cidade from locais where região = 'sudeste'));
+
+#Operadores exists e not exist
+#o operador exist é usado para testar a existencia de qualquer registro em uma subconsulta
+#o operador exist retorna true se a subconsulta retornar um ou mais registros
+
+/*
+select coluna(s) 
+from tabela
+where exists 
+(select coluna(s) from tabela where condição);
+*/
+
+/*
+utilizando o banco de dados diversas_tabelas, voce devera verificar se todas as categorias possuem pelo menos 1 exemplar de produtos (na tabela de produtos); caso alguma categoria nao possua nenhum exemplar, voce deverá descobrir qual é 
+*/
+select * from categorias;
+select * from produtos;
+select id_categoria from categorias;
+#queremos saber se nessa tabela de produtos estao todas as categorias
+
+#preciso verificar se estes id_categoria da tabela categorias, estão presentes no id_categoria da tabela produtos
+select id_categoria from produtos;
+
+#fazer uma comparacao entre os dados de id_categoria das duas tabelas categorias e produtos
+select id_categoria from categorias where exists (select id_categoria from produtos where categorias.id_categoria = produtos.id_categoria);
+
+#fazer uma consulta para verificar qual id_categoria das duas tabelas categorias e produtos nao existe
+select id_categoria from categorias where not exists (select id_categoria from produtos where categorias.id_categoria = produtos.id_categoria);
+
+#fazer uma consulta para saber qual categoria pertence ao id 7
+select * from categorias where not exists(select id_categoria from produtos where categorias.id_categoria = produtos.id_categoria);

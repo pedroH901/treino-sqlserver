@@ -1,0 +1,138 @@
+--EXERCICIOS
+--(INNER JOIN)
+--1 a) Exibir o nome de todos os clientes que fizeram pedidos, mostrando também o ID do pedido.
+SELECT * FROM Clientes
+SELECT * FROM Pedidos 
+SELECT Clientes.NomeCliente AS 'Nome cliente', Pedidos.ClienteID AS 'Id cliente', Pedidos.PedidoID AS 'ID pedido' FROM Clientes INNER JOIN Pedidos ON Clientes.ClienteID = Pedidos.ClienteID
+
+-- b) Desafio adicional: E se você quisesse também ver a data do pedido? Adicione a coluna DataPedido no resultado
+SELECT Clientes.NomeCliente AS 'Nome cliente', Pedidos.ClienteID AS 'Id cliente', Pedidos.PedidoID AS 'ID pedido', Pedidos.DataPedido AS 'Data pedido' FROM Clientes INNER JOIN Pedidos ON Clientes.ClienteID = Pedidos.ClienteID
+
+
+
+--===========================================================================================================================================================================================================================================
+--(LEFT JOIN)
+--2 a) Listar todos os clientes, mesmo aqueles que ainda não fizeram pedidos, e exibir o número do pedido (se houver).
+SELECT Clientes.NomeCliente AS 'Nome cliente', Clientes.ClienteID AS 'ID cliente', Pedidos.PedidoID AS 'ID pedido' FROM Clientes LEFT JOIN Pedidos on Clientes.ClienteID = Pedidos.ClienteID
+
+--b) Desafio adicional: Mostre a cidade dos clientes além do nome e PedidoID.
+SELECT Clientes.NomeCliente AS 'Nome cliente', Clientes.Cidade AS 'Cidade', Clientes.ClienteID AS 'ID cliente', Pedidos.PedidoID AS 'ID pedido' FROM Clientes LEFT JOIN Pedidos on Clientes.ClienteID = Pedidos.ClienteID
+
+--===========================================================================================================================================================================================================================================
+--(UNION)
+--3 a) Combinar os resultados de todos os clientes que estão na tabela de Clientes e aqueles que aparecem na tabela de Pedidos (clientes que fizeram pelo menos um pedido). Evite duplicatas.
+SELECT Clientes.NomeCliente, Clientes.ClienteID FROM Clientes UNION SELECT Clientes.NomeCliente, Pedidos.ClienteID FROM Pedidos INNER JOIN Clientes ON Pedidos.ClienteID = Clientes.ClienteID
+
+--b) Desafio adicional: E se você quiser adicionar a cidade dos clientes no resultado? Atualize a consulta para incluir essa informação.
+SELECT Clientes.NomeCliente, Clientes.ClienteID, Clientes.Cidade FROM Clientes UNION SELECT Clientes.NomeCliente, Pedidos.ClienteID, Clientes.Cidade FROM Pedidos INNER JOIN Clientes ON Pedidos.ClienteID = Clientes.ClienteID
+
+--===========================================================================================================================================================================================================================================
+--(UNION ALL)
+--4 a) Combinar os resultados de todos os clientes da tabela Clientes e aqueles que fizeram pedidos, mostrando todas as ocorrências, inclusive duplicadas.
+SELECT Clientes.NomeCliente, Clientes.ClienteID FROM Clientes UNION ALL SELECT Clientes.NomeCliente, Pedidos.ClienteID FROM Pedidos INNER JOIN Clientes ON Pedidos.ClienteID = Clientes.ClienteID
+
+--b) Desafio adicional: Tente contar quantas vezes cada cliente aparece no resultado final (dica: use COUNT e lembre-se do conceito de subconsulta).
+SELECT NomeCliente, COUNT(*) AS 'Numero de ocorrencia' FROM (SELECT Clientes.NomeCliente FROM Clientes UNION ALL SELECT Clientes.NomeCliente FROM Pedidos INNER JOIN Clientes ON Pedidos.ClienteID = Clientes.ClienteID) AS Resultado_Uniao GROUP BY NomeCliente;
+
+
+
+--===========================================================================================================================================================================================================================================
+/* 5 (MULTIPLOS JOINS)
+Exibir o nome dos clientes, os detalhes dos produtos comprados
+(nome do produto e quantidade), e a data em que os pedidos foram feitos.
+
+
+1) Construa a tabela DetalhesPedidos
+USE LojaDB;
+CREATE TABLE DetalhesPedidos (
+DetalheID INT PRIMARY KEY,
+PedidoID INT,
+ProdutoID INT,
+Quantidade INT,
+FOREIGN KEY (PedidoID) REFERENCES Pedidos (PedidoID), -- Chave
+estrangeira para Pedidos
+FOREIGN KEY (ProdutoID) REFERENCES Produtos (ProdutoID) -- Chave
+estrangeira para Produtos
+);
+*/
+CREATE TABLE DetalhesPedidos (
+DetalheID INT PRIMARY KEY,
+PedidoID INT,
+ProdutoID INT,
+Quantidade INT,
+FOREIGN KEY (PedidoID) REFERENCES Pedidos (PedidoID), -- Chave estrangeira para Pedidos
+FOREIGN KEY (ProdutoID) REFERENCES Produtos (ProdutoID) -- Chave estrangeira para Produtos
+);
+
+--2) Insira os dados na tabela DetalhesPedidos
+INSERT INTO DetalhesPedidos (DetalheID, PedidoID, ProdutoID, Quantidade)
+VALUES
+(1, 1, 1, 2), -- Pedido 1 contém 2 unidades do Produto 1
+(2, 1, 2, 1), -- Pedido 1 contém 1 unidade do Produto 2
+(3, 2, 3, 5), -- Pedido 2 contém 5 unidades do Produto 3
+(4, 3, 2, 2); -- Pedido 3 contém 2 unidades do Produto 2
+
+--3) Faça uma consulta com múltiplos JOINs, utilize todas as tabelas do banco de dados LojaDB e ordene por Pedidos.DataPedido.
+
+--Exibir o nome dos clientes, os detalhes dos produtos comprados (nome do produto e quantidade), e a data em que os pedidos foram feitos.
+SELECT Clientes.NomeCliente, Produtos.NomeProduto, DetalhesPedidos.Quantidade, Pedidos.DataPedido 
+FROM Clientes INNER JOIN Pedidos ON Pedidos.ClienteID = Clientes.ClienteID
+INNER JOIN DetalhesPedidos ON DetalhesPedidos.PedidoID = Pedidos.PedidoID
+INNER JOIN Produtos ON Produtos.ProdutoID = DetalhesPedidos.ProdutoID
+ORDER BY Pedidos.DataPedido DESC
+
+--Exemplos práticos utilizando os comandos de agregação
+--Exemplo 1: Contando pedidos por cliente
+--Objetivo: Mostrar quantos pedidos cada cliente fez
+SELECT Clientes.NomeCliente, COUNT(Pedidos.ClienteID) AS 'Qtd. Pedidos' FROM Clientes LEFT JOIN Pedidos ON Pedidos.ClienteID = Clientes.ClienteID GROUP BY NomeCliente
+
+--Exemplo 2: Soma de quantidades de produtos comprados por cliente
+--Objetivo: Mostrar o total de itens comprados por cada cliente
+SELECT * FROM Clientes
+SELECT * FROM DetalhesPedidos
+SELECT * FROM Produtos
+SELECT Clientes.NomeCliente, SUM(DetalhesPedidos.Quantidade) AS 'Total Pedidos' FROM Clientes 
+INNER JOIN Pedidos ON Clientes.ClienteID = Pedidos.ClienteID 
+INNER JOIN DetalhesPedidos ON Pedidos.PedidoID = DetalhesPedidos.PedidoID GROUP BY Clientes.NomeCliente
+
+--Exemplo 3: Valor total gasto por cliente
+--Objetivo: Mostrar o valor total gasto por cada cliente com base nos produtos que comprou.
+	SELECT Clientes.NomeCliente, SUM(DetalhesPedidos.Quantidade * Produtos.Preco) AS TotalGasto FROM Clientes INNER JOIN Pedidos ON Clientes.ClienteID = Pedidos.ClienteID
+	INNER JOIN DetalhesPedidos ON Pedidos.PedidoID = DetalhesPedidos.PedidoID
+	INNER JOIN Produtos ON DetalhesPedidos.ProdutoID = Produtos.ProdutoID GROUP BY Clientes.NomeCliente
+
+--Exemplo 4: Produtos mais vendidos
+--Objetivo: Exibir os produtos mais vendidos com base no total de quantidades vendidas.
+SELECT Produtos.NomeProduto, SUM(DetalhesPedidos.Quantidade) AS Quantidade FROM Produtos INNER JOIN DetalhesPedidos ON DetalhesPedidos.ProdutoID = Produtos.ProdutoID GROUP BY NomeProduto
+
+--Exemplo 5: Faturamento por data de pedido
+--Objetivo: Exibir o total faturado em cada data de pedido
+SELECT Pedidos.DataPedido, SUM(DetalhesPedidos.Quantidade * Produtos.Preco) AS Faturamento FROM Pedidos INNER JOIN DetalhesPedidos ON Pedidos.PedidoID = DetalhesPedidos.PedidoID INNER JOIN Produtos ON DetalhesPedidos.ProdutoID = Produtos.ProdutoID GROUP BY Pedidos.DataPedido ORDER BY Pedidos.DataPedido DESC
+GO
+
+--===========================================================================================================================================================================================================================================
+--EXERCICIOS
+--1 Utilize o INNER JOIN para trazer os nomes das subcategorias dos produtos, da tabela DimProductSubCategory para a tabela DimProduct
+SELECT ProductKey AS 'ID Produto', ProductName AS 'Produto', ProductSubCategoryName AS 'Subcategoria' FROM DimProduct INNER JOIN DimProductSubcategory ON DimProduct.ProductSubcategoryKey = DimProductSubcategory.ProductSubcategoryKey
+
+
+--2 Identifique uma coluna em comum entre as tabelas DimProductsubcategory e DimProductCategory. Utilize essa coluna para complementar informações na tabela DimProductSubcategory a partir da DimProductCategory. Utilize o LEFT JOIN.
+SELECT ProductSubcategoryKey AS 'ID Subcategoria', ProductSubcategoryName AS 'Subcategoria', ProductCategoryname AS 'Categoria' FROM DimProductSubcategory 
+INNER JOIN DimProductCategory ON DimProductSubcategory.ProductCategoryKey = DimProductCategory.ProductCategoryKey
+
+
+--3 Para cada loja da tabela DimStore, descubra qual o Continente e o Nome do País associados (de acordo com DimGeography). Seu SELECT final deve conter apenas as seguintes colunas: StoreKey, StoreName, EmployeeCount, ContinentName e RegionCountryName. Utilize o LEFT JOIN neste exercício.
+SELECT StoreKey AS 'ID Loja', StoreName AS 'Loja', EmployeeCount AS 'Qtd Funcionarios', ContinentName AS 'Continente', RegionCountryName AS 'País' FROM DimStore
+LEFT JOIN DimGeography ON DimStore.GeographyKey = DimGeography.GeographyKey
+
+
+--4 Complemente a tabela DimProduct com a informação de ProductCategoryDescription. Utilize o LEFT JOIN e retorne em seu SELECT apenas as 5 colunas que considerar mais relevantes.
+SELECT ProductName, ProductCategoryDescription FROM DimProduct LEFT JOIN DimProductSubcategory ON DimProduct.ProductSubcategoryKey = DimProductSubcategory.ProductSubcategoryKey
+LEFT JOIN DimProductCategory ON DimProductSubcategory.ProductCategoryKey = DimProductcategory.ProductCategoryKey
+
+
+--5 Algumas subcategorias não possuem nenhum exemplar de produto. Identifique quais subcategorias são essas.
+SELECT ProductSubcategoryName FROM DimProduct RIGHT JOIN DimProductSubcategory ON DimProduct.ProductSubcategoryKey = DimProductSubcategory.ProductSubcategoryKey WHERE ProductName IS NULL
+
+
+

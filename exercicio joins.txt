@@ -1,0 +1,50 @@
+#----------------------------------------------//------------------------------------------
+# Crie um banco de dados com o nome: JOINS
+create database joins;
+use joins;
+
+#Crie uma tabela com o nome: AUTOR
+create table autor (
+id_autor int not null auto_increment primary key,
+nome_autor varchar(50)
+);
+
+#Crie uma tabela com o nome: LIVRO
+create table livro (
+id_livro int not null auto_increment primary key,
+nome_livro varchar(100),
+fk_a int,
+foreign key (fk_a) references autor (id_autor)
+);
+
+#Insira os seguintes nomes na tabela Autor
+insert into autor values
+(default, 'Luana Farias', default),
+(default, 'Ronaldo', default),
+(default, 'Marcos', default),
+(default, 'Alessandra', default),
+(default, 'Fabiano', default);
+
+#Insira os seguintes dados na tabela Livro
+insert into livro values 
+(default, 'CSS', '5'),
+(default, 'HTML', '1'),
+(default, 'C++', '3'),
+(default, 'Python', NULL),
+(default, 'PHP', '2');
+
+#Crie uma consulta para mostrar todos os dados da tabela autor e livro
+select * from autor;
+select * from livro;
+
+# Faça um INNER JOIN para mostrar as informações que estão em comum nas duas tabelas referente ao NOME_AUTOR e o NOME_LIVRO
+select autor.nome_autor, livro.nome_livro from autor inner join livro on autor.id_autor = livro.fk_a;
+
+#Faça um INNER JOIN para mostrar todos os nomes de autores e o NOME_LIVRO
+select autor.nome_autor, livro.nome_livro from autor left join livro on autor.id_autor = livro.fk_a;
+
+#Faça um INNER JOIN para mostrar todos os nomes dos Livros e o NOME_AUTOR
+select livro.nome_livro, autor.nome_autor from autor right join livro on autor.id_autor = livro.fk_a;
+
+# Faça um INNER JOIN para mostrar todos os nomes dos Livros e dos autores
+select * from autor right join livro on autor.id_autor = livro.fk_a;
